@@ -2,41 +2,51 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const registerUser = async (username, email, password) => {
+const registerUser = async (data) => {
+  // Kiểm tra xem username đã tồn tại chưa
+  const existingUsername = await User.findOne({ username: data.username });
+  if (existingUsername) {
+    throw new Error("Username đã tồn tại");
+  }
+
   // Kiểm tra xem email đã tồn tại chưa
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email: data.email });
   if (existingUser) {
-    throw new Error("Email already exists.");
+    throw new Error("Email đã tồn tại");
   }
 
   // Mã hóa mật khẩu trước khi lưu
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(data.password, 10);
 
-  // Tạo user mới với mật khẩu đã mã hóa và role mặc định là 'USER'
-  const user = new User({ username, email, password: hashedPassword });
+  const user = new User({
+    username: data.username,
+    password: hashedPassword,
+    email: data.email,
+    fullname: data.fullname,
+    dateOfBirth: data.dateOfBirth,
+    gender: data.gender,
+  });
 
-  // Lưu user vào database
   await user.save();
 
-  // Trả về user đã tạo
   return user;
 };
 
-const loginUser = async (email, password) => {
-  // Kiểm tra xem email có tồn tại không
-  const user = await User.findOne({ email });
+const loginUser = async (data) => {
+  // Kiểm tra xem username
+  const user = await User.findOne({ username: data.username });
   if (!user) {
-    throw new Error("Invalid email or password.");
+    throw new Error("Username không chính xác");
   }
 
   if (user.status == false) {
-    throw new Error("User has been ban!");
+    throw new Error("Bạn đã bị chặn!");
   }
 
   // Kiểm tra mật khẩu
-  const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = await bcrypt.compare(data.password, user.password);
   if (!isMatch) {
-    throw new Error("Invalid email or password.");
+    throw new Error("Mật khẩu không chính xác");
   }
 
   // Nếu thông tin hợp lệ, tạo token JWT

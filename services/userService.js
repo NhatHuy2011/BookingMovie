@@ -6,27 +6,23 @@ const getAllUsers = async () => {
   return users;
 };
 
-const updateUserProfile = async (userId, username, email) => {
+const updateUserProfile = async (data) => {
   // Tìm người dùng theo id
-  const user = await User.findById(userId);
+  const user = await User.findById(data.id);
 
   if (!user) {
     throw new Error("User not found");
   }
 
   // Cập nhật thông tin
-  user.username = username || user.username;
-  user.email = email || user.email;
+  user.fullname = data.fullname || user.fullname;
+  user.dateOfBirth = data.dateOfBirth || user.dateOfBirth;
+  user.gender = data.gender || user.gender;
 
   // Lưu người dùng với thông tin mới
-  const updatedUser = await user.save();
+  await user.save();
 
-  return {
-    _id: updatedUser._id,
-    username: updatedUser.username,
-    email: updatedUser.email,
-    role: updatedUser.role,
-  };
+  return user;
 };
 
 const banUserById = async (userId) => {
@@ -39,7 +35,6 @@ const banUserById = async (userId) => {
   // Ban user
   user.status = false;
 
-  // Lưu người dùng với thông tin mới
   await user.save();
 
   return { message: "Ban user successfully" };

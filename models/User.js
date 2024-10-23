@@ -1,13 +1,7 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
   username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  email: {
     type: String,
     required: true,
     unique: true,
@@ -16,15 +10,37 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  role: {
+  email: {
     type: String,
-    enum: ["USER", "ADMIN"], // Chỉ cho phép USER và ADMIN
-    default: "USER",
+    required: true,
+    unique: true,
+  },
+  fullname: {
+    type: String,
+    required: true,
+  },
+  dateOfBirth: {
+    type: Date,
+  },
+  gender: {
+    type: String,
+  },
+  avatar: {
+    type: String,
   },
   status: {
     type: Boolean,
     required: true,
     default: true,
+  },
+  point: {
+    type: Number,
+    default: 0,
+  },
+  role: {
+    type: String,
+    enum: ["USER", "ADMIN"],
+    default: "USER",
   },
 });
 

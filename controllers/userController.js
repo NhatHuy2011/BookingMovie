@@ -1,7 +1,7 @@
 const userService = require("../services/userService");
 
 // Hàm lấy danh sách người dùng
-const getAllUsers = async (req, res) => {
+const getAllUsers = async (res) => {
   try {
     // Gọi service để lấy danh sách user
     const users = await userService.getAllUsers();
@@ -19,10 +19,7 @@ const getProfile = async (req, res) => {
 
     // Trả về thông tin người dùng, trừ mật khẩu
     res.status(200).json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
+      user,
     });
   } catch (error) {
     res.status(400).json({ message: "Cannot get user profile" });
@@ -31,28 +28,21 @@ const getProfile = async (req, res) => {
 
 // Hàm cập nhật thông tin người dùng
 const updateProfile = async (req, res) => {
-  const { username, email } = req.body;
-
   try {
-    // Gọi service để cập nhật thông tin người dùng
-    const updatedUser = await userService.updateUserProfile(
-      req.user._id,
-      username,
-      email
-    );
+    const user = await userService.updateUserProfile(req.body);
     res.status(200).json({
       message: "User profile updated successfully",
-      user: updatedUser,
+      user,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-// Hàm xóa người dùng
+// Hàm ban người dùng
 const banUser = async (req, res) => {
   try {
-    // Gọi service để xóa user
+    // Gọi service để ban user
     const result = await userService.banUserById(req.params.id);
     res.status(200).json(result);
   } catch (error) {

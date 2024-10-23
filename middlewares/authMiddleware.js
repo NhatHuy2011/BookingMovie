@@ -19,7 +19,7 @@ const protect = async (req, res, next) => {
       // Lưu thông tin user vào request để có thể dùng trong các route tiếp theo
       req.user = await User.findById(decoded.id).select("-password");
 
-      next(); // Cho phép tiếp tục xử lý yêu cầu
+      next();
     } catch (error) {
       res.status(401).json({ message: "Not authorized, token failed" });
     }
@@ -30,4 +30,23 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const admin = (req, res, next) => {
+  if (req.user && req.user.role === "ADMIN") {
+    next();
+  } else {
+    res.status(403).json({ message: "Access denied. Admins only." });
+  }
+};
+
+const employee = (req, res, next) => {
+  if (req.user && req.user.role === "EMPLOYEE") {
+    next();
+  } else {
+    res.status(403).json({ message: "Access denied. Employees only." });
+  }
+};
+
+module.exports = {
+  protect,
+  admin,
+};
